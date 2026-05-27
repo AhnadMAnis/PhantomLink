@@ -4,6 +4,8 @@
 Gerne:
 	(RAT - Spyware - Injector - Worm)
 
+	Mechanism: Reverse Shell
+
 
 
 Files;
