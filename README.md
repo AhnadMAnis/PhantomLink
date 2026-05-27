@@ -1,5 +1,7 @@
 #NOTE: This is very very simple documentation and doesn't show how it fully works or what it fully does, it only shows the Key features (NOT ALL) and functions but there are many many other functions and features. Also note this is NOT how the Backend fully works, this is only the BASICS, NOT full.
 
+(CHECK "Wiki" FOR MORE DETAILS AND PICTURES AND COMMANDS)
+
 
 Gerne:
 	(RAT - Spyware - Injector - Worm)
