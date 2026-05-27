@@ -26,14 +26,12 @@ class PhantomLinkRemover:
         self.errors = []
 
     def is_admin(self):
-        """Check if running with administrator privileges"""
         try:
             return ctypes.windll.shell32.IsUserAnAdmin()
         except:
             return False
 
     def elevate_privileges(self):
-        """Request administrator privileges"""
         if not self.is_admin():
             print("[!] Administrator privileges required. Requesting elevation...")
             try:
@@ -47,7 +45,6 @@ class PhantomLinkRemover:
         return True
 
     def log_action(self, action, success=True):
-        """Log actions taken"""
         status = "[+]" if success else "[!]"
         message = f"{status} {action}"
         print(message)
@@ -57,7 +54,6 @@ class PhantomLinkRemover:
             self.errors.append(action)
 
     def kill_suspicious_processes(self):
-        """Kill all suspicious processes"""
         print("\n[*] Scanning for malicious processes...")
         killed_processes = []
 
@@ -81,7 +77,6 @@ class PhantomLinkRemover:
                             killed_processes.append(name)
                             break
 
-                # Check for suspicious command line arguments
                 suspicious_cmdline_indicators = [
                     "PhantomLink", "MicrosoftUpdate",
                     "defender.exe"
@@ -111,7 +106,6 @@ class PhantomLinkRemover:
                 pass
 
     def remove_startup_entries(self):
-        """Remove malicious startup entries"""
         print("\n[*] Removing startup entries...")
 
         startup_keys = [
@@ -130,22 +124,18 @@ class PhantomLinkRemover:
             try:
                 reg_key = winreg.OpenKey(hkey, key_path, 0, winreg.KEY_ALL_ACCESS)
 
-                # Enumerate all values
                 i = 0
                 values_to_delete = []
                 while True:
                     try:
                         name, value, _ = winreg.EnumValue(reg_key, i)
 
-                        # Check if entry name is suspicious
                         if name in malicious_entries:
                             values_to_delete.append(name)
 
-                        # Check if entry value points to suspicious paths
                         elif any(sus_path.lower() in str(value).lower() for sus_path in self.suspicious_paths):
                             values_to_delete.append(name)
 
-                        # Check for suspicious filenames in the path
                         elif any(sus_name.lower() in str(value).lower() for sus_name in self.suspicious_names):
                             values_to_delete.append(name)
 
@@ -153,7 +143,6 @@ class PhantomLinkRemover:
                     except WindowsError:
                         break
 
-                # Delete malicious entries
                 for name in values_to_delete:
                     try:
                         winreg.DeleteValue(reg_key, name)
@@ -189,7 +178,6 @@ class PhantomLinkRemover:
                            ['phantomlink', 'defender', 'microsoftupdate', 'windowsupdate', 'keylogger']):
                         suspicious_tasks.append(task_name)
 
-            # Remove suspicious tasks
             for task in suspicious_tasks:
                 try:
                     subprocess.run(
@@ -207,12 +195,10 @@ class PhantomLinkRemover:
         """Remove malicious files and directories"""
         print("\n[*] Removing malicious files...")
 
-        # Remove directories
         for path in self.suspicious_paths:
             if os.path.exists(path):
                 try:
                     shutil.rmtree(path, ignore_errors=True)
-                    # Force removal if normal deletion fails
                     if os.path.exists(path):
                         subprocess.run(['rmdir', '/s', '/q', path], shell=True)
 
@@ -223,7 +209,6 @@ class PhantomLinkRemover:
                 except Exception as e:
                     self.log_action(f"Error removing {path}: {e}", False)
 
-        # Search for and remove suspicious files in common locations
         search_locations = [
             os.path.expandvars(r"%TEMP%"),
             os.path.expandvars(r"%APPDATA%"),
@@ -237,7 +222,6 @@ class PhantomLinkRemover:
                 self.scan_and_remove_files(location)
 
     def scan_and_remove_files(self, directory):
-        """Recursively scan directory for malicious files"""
         try:
             for root, dirs, files in os.walk(directory):
                 for file in files:
@@ -249,8 +233,7 @@ class PhantomLinkRemover:
                         except Exception as e:
                             self.log_action(f"Failed to remove {file_path}: {e}", False)
 
-                # Remove empty suspicious directories
-                for dir_name in dirs[:]:  # Create a copy to modify during iteration
+                for dir_name in dirs[:]:
                     if any(sus in dir_name.lower() for sus in
                            ['phantomlink', 'microsoftupdate', 'microsoftupdater', 'keylogger']):
                         dir_path = os.path.join(root, dir_name)
@@ -268,7 +251,6 @@ class PhantomLinkRemover:
         """Restore modified system settings"""
         print("\n[*] Restoring system settings...")
 
-        # Re-enable UAC
         try:
             subprocess.run([
                 "reg", "add",
@@ -282,7 +264,6 @@ class PhantomLinkRemover:
         except subprocess.CalledProcessError:
             self.log_action("Failed to re-enable UAC", False)
 
-        # Re-enable Task Manager
         try:
             subprocess.run([
                 "reg", "delete",
@@ -294,16 +275,14 @@ class PhantomLinkRemover:
         except subprocess.CalledProcessError:
             pass  # Key might not exist
 
-        # Remove malicious user account
         try:
             subprocess.run(["net", "user", "PhantomLink", "/delete"],
                            check=True, capture_output=True)
             self.log_action("Removed malicious user account: PhantomLink")
         except subprocess.CalledProcessError:
-            pass  # User might not exist
+            pass
 
     def clean_hosts_file(self):
-        """Clean malicious entries from hosts file"""
         print("\n[*] Cleaning hosts file...")
 
         hosts_path = os.path.join(os.environ['WINDIR'], 'System32', 'drivers', 'etc', 'hosts')
@@ -317,16 +296,13 @@ class PhantomLinkRemover:
                 removed_entries = []
 
                 if removed_entries:
-                    # Backup original hosts file
                     shutil.copy2(hosts_path, hosts_path + '.backup')
 
-                    # Write cleaned hosts file
                     with open(hosts_path, 'w', encoding='utf-8') as f:
                         f.writelines(clean_lines)
 
                     self.log_action(f"Cleaned {len(removed_entries)} entries from hosts file")
 
-                    # Flush DNS cache
                     subprocess.run(['ipconfig', '/flushdns'], capture_output=True)
                     self.log_action("Flushed DNS cache")
                 else:
@@ -336,13 +312,12 @@ class PhantomLinkRemover:
             self.log_action(f"Error cleaning hosts file: {e}", False)
 
     def check_network_connections(self):
-        """Check for active connections to malicious IPs"""
         print("\n[*] Checking network connections...")
 
         suspicious_connections = []
 
         for conn in psutil.net_connections():
-            if conn.raddr and conn.raddr.ip in "81.10.55.8":
+            if conn.raddr and conn.raddr.ip in "IP":
                 suspicious_connections.append(f"{conn.raddr.ip}:{conn.raddr.port}")
 
         if suspicious_connections:
@@ -351,10 +326,8 @@ class PhantomLinkRemover:
             self.log_action("No suspicious network connections found")
 
     def run_system_scans(self):
-        """Run system integrity checks"""
         print("\n[*] Running system scans...")
 
-        # System File Checker
         try:
             print("[*] Running System File Checker (sfc /scannow)...")
             result = subprocess.run(['sfc', '/scannow'],
@@ -369,7 +342,6 @@ class PhantomLinkRemover:
             self.log_action(f"Failed to run System File Checker: {e}", False)
 
     def generate_report(self):
-        """Generate removal report"""
         print("\n" + "=" * 60)
         print("PHANTOMLINK RAT REMOVAL REPORT")
         print("=" * 60)
@@ -390,7 +362,6 @@ class PhantomLinkRemover:
         print("  4. Monitor system behavior for any remaining suspicious activity")
         print("  5. Update all software and operating system")
 
-        # Save report to file
         try:
             report_path = os.path.join(tempfile.gettempdir(), "PhantomLink_Removal_Report.txt")
             with open("PhantomLink_Removal_Report.txt", 'w', encoding='UTF-8') as f:
@@ -427,7 +398,6 @@ class PhantomLinkRemover:
             print(f"[!] Failed to save report: {e}")
 
     def run_full_removal(self):
-        """Execute complete removal process"""
         print("PhantomLink RAT Removal Tool")
         print("=" * 40)
 
@@ -436,27 +406,20 @@ class PhantomLinkRemover:
 
         print("[*] Starting comprehensive malware removal...")
 
-        # Kill malicious processes first
         self.kill_suspicious_processes()
 
-        # Wait a moment for processes to fully terminate
         time.sleep(2)
 
-        # Remove persistence mechanisms
         self.remove_startup_entries()
         self.remove_scheduled_tasks()
 
-        # Remove malicious files
         self.remove_malicious_files()
 
-        # Restore system settings
         self.restore_system_settings()
 
-        # Clean network-related items
         self.clean_hosts_file()
         self.check_network_connections()
 
-        # Generate final report
         self.generate_report()
 
         print("\n[+] Removal process completed!")

@@ -29,8 +29,6 @@ def fix_arabic(text):
             pass
     return text
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
 def gui_log(msg, tag=""):
     def _do():
         chat_box.config(state=tk.NORMAL)
@@ -46,8 +44,6 @@ def gui_log(msg, tag=""):
 
 def set_status(text, color="#555"):
     root.after(0, lambda: (status_var.set(text), status_lbl.config(fg=color)))
-
-# ─── Networking ───────────────────────────────────────────────────────────────
 
 def listen_for_messages():
     global connected_client, client_username
@@ -108,14 +104,10 @@ def disable_input():
     entry.config(state=tk.DISABLED)
     send_btn.config(state=tk.DISABLED)
 
-# ─── Server socket ────────────────────────────────────────────────────────────
-
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind((HOST, PORT))
 server_socket.listen(1)
-
-# ─── GUI ──────────────────────────────────────────────────────────────────────
 
 root = tk.Tk()
 root.title("Chat Server")

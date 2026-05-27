@@ -9,7 +9,6 @@ import sys
 
 version = 1.0 #22/2/2026
 
-# Try to import bidi for proper Arabic display
 try:
     from bidi.algorithm import get_display
     BIDI_AVAILABLE = True
@@ -19,12 +18,12 @@ except ImportError:
 if sys.platform == "win32":
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myapp.chat.client")
 
-HOST = "81.10.55.8"
+HOST = "IP"
 PORT = 8080
 
 username = getpass.getuser()
 
-# ─── Arabic helpers ───────────────────────────────────────────────────────────
+#Arabic helpers
 
 def is_arabic(text):
     for ch in text:
@@ -42,8 +41,6 @@ def fix_arabic(text):
         except ImportError:
             pass
     return text
-
-# ─── Custom close popup ───────────────────────────────────────────────────────
 
 def on_close_attempt():
     popup = tk.Toplevel(root)
@@ -88,8 +85,6 @@ def on_close_attempt():
     popup.bind("<Escape>", lambda e: close_popup())
     ok_btn.focus_set()
 
-# ─── Dragging logic ───────────────────────────────────────────────────────────
-
 _drag_x = 0
 _drag_y = 0
 
@@ -102,8 +97,6 @@ def do_drag(event):
     x = root.winfo_x() + event.x - _drag_x
     y = root.winfo_y() + event.y - _drag_y
     root.geometry(f"+{x}+{y}")
-
-# ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def gui_log(msg, tag=""):
     def _do():
@@ -130,16 +123,12 @@ def disable_input():
     entry.config(state=tk.DISABLED)
     send_btn.config(state=tk.DISABLED)
 
-# ─── Entry RTL/LTR auto-switch ────────────────────────────────────────────────
-
 def on_key_release(event):
     text = entry.get()
     if is_arabic(text):
         entry.config(justify="right")
     else:
         entry.config(justify="left")
-
-# ─── Networking ───────────────────────────────────────────────────────────────
 
 client = None
 
@@ -208,14 +197,13 @@ def send_message(event=None):
         return
     try:
         client.send(msg.encode())
-        # Display with bidi fix locally
         gui_log(f"[You]: {msg}", "outgoing")
         entry.delete(0, tk.END)
         entry.config(justify="left")
     except OSError:
         gui_log("[!] Send failed — not connected.", "error")
 
-# ─── GUI ──────────────────────────────────────────────────────────────────────
+#GUI
 
 root = tk.Tk()
 root.overrideredirect(True)
@@ -225,14 +213,14 @@ root.configure(bg="#0d0d0d")
 MONO = ("Consolas", 10)
 BOLD = ("Consolas", 9, "bold")
 
-# Outer border
+#Outer border
 border = tk.Frame(root, bg="#00ff88", padx=1, pady=1)
 border.pack(fill="both", expand=True)
 
 inner = tk.Frame(border, bg="#0d0d0d")
 inner.pack(fill="both", expand=True)
 
-# Title bar
+#Title bar
 title_bar = tk.Frame(inner, bg="#111", height=32)
 title_bar.pack(fill="x")
 title_bar.pack_propagate(False)
@@ -250,7 +238,7 @@ close_btn.pack(side="right", fill="y")
 title_bar.bind("<ButtonPress-1>", start_drag)
 title_bar.bind("<B1-Motion>",     do_drag)
 
-# Status bar
+#Status bar
 status_bar = tk.Frame(inner, bg="#111", height=24)
 status_bar.pack(fill="x")
 status_bar.pack_propagate(False)
@@ -259,7 +247,7 @@ status_lbl = tk.Label(status_bar, textvariable=status_var, fg="#555", bg="#111",
                       font=("Consolas", 8), padx=10)
 status_lbl.pack(side="right", pady=4)
 
-# Input bar — packed BEFORE chat box so it anchors to bottom reliably
+#Input bar
 bottom = tk.Frame(inner, bg="#111", height=45)
 bottom.pack(fill="x", side="bottom")
 bottom.pack_propagate(False)
@@ -277,13 +265,13 @@ send_btn = tk.Button(bottom, text="SEND →", bg="#1a2e22", fg="#00ff88",
                      state=tk.DISABLED, command=send_message)
 send_btn.place(relx=1.0, x=-82, y=8, width=74, height=29)
 
-# Chat box
+#Chat box
 chat_box = ScrolledText(inner, bg="#0a0a0a", fg="#ccc", font=MONO,
                         state=tk.DISABLED, relief="flat", bd=0,
                         wrap=tk.WORD, padx=8, pady=6)
 chat_box.pack(fill="both", expand=True, padx=6, pady=(4, 4))
 
-# Color tags
+#Color tags
 chat_box.tag_config("system",   foreground="#444")
 chat_box.tag_config("incoming", foreground="#00ccff")
 chat_box.tag_config("outgoing", foreground="#00ff88")
@@ -292,8 +280,6 @@ chat_box.tag_config("rtl",      justify="right")
 chat_box.tag_config("ltr",      justify="left")
 
 root.bind("<Alt-F4>", lambda e: on_close_attempt())
-
-# ─── Install bidi if missing, then connect ────────────────────────────────────
 
 def ensure_bidi_then_connect():
     if not BIDI_AVAILABLE:

