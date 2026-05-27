@@ -1,0 +1,243 @@
+#NOTES;
+	#Every update adds 0.1 to the version, (if upgrading or changing the main logic it adds 1.0, if its adding to the
+	same logic or adding new BIG features it adds 0.2)
+
+	#There are many jumps and shifts in versions (only in this ChangeLog) in the periods ([Mnth7-Mnth8 Y|2025|] and [Mnth1-Mntg2 Y|2026|]) due to 				OverUpdates and not updating the ChangeLog.
+
+	#(! + *) meanings. "!" means removing feature/something, "+" means adding new feature/thing, "*" means Fixing/Improving/Updating.
+
+Total Updates;
+######## Client (OLD: 69 #25/2/2026      (xxxxxxxxxxxxxxxxxxxxxx)
+######## Listen (OLD): 92 #25/2/2026     (xxxxxxxxxxxxxxxxxxxxxx)
+
+	C2:           5  #2/3/2026
+	PhantomLink:  12  #4/3/2026
+
+
+
+
+
+
+Client: 29/6/2025 V1.0 (DEMO)
+Listen: 29/6/2025 V1.0 (DEMO)
+
+
+
+
+Client: 5/7/2025 V2.0 (BETA):
+	[+] Added reconnecting logic.
+
+Listen: 5/7/2025 V3.0 (BETA):
+	[+] Now PhantomLink can recive more than one connection a time (Max 5 a time)
+
+
+
+
+Client: 7/7/2025 V5.8:
+	[+] Added KEEPALIVE method ([|PING|]-PONG)
+
+Listen: 7/7/2025 V6.3:
+	[+] Added KEEPALIVE method (PING-[|PONG|])
+
+
+
+
+Client: 9/7/2025 V5.9:
+	[*] General Updates, Solving Problems
+
+
+
+
+Client: 16/2/2026 V6.7:
+	[+][*] Make logs and update "screener.exe".
+
+Listen: 18/2/2026 V8.2:
+	[*] Solve output shifting issue, improvments, change "virus" command to "inject".
+
+
+
+
+Client: 18/2/2026 V6.8:
+	 [+] Add logging to PhantomLink BOT (Simple Logging).
+
+Listen:20/2/2026 V8.2:
+	 [*][+] General improvments, add HackChat tool(V1.0).
+
+
+
+
+Client: 22/2/2026 V7.2:
+	[!][*][+] Remove the old logging, add very Advanced logging to "PhantomLog" Telegram BOT.
+
+Listen: 22/2/2026 V8.6:
+	[!][*][+] Remove the old logging, adding Very advanced loggging.
+
+
+
+
+Listen: 22/2/2026 V8.7:
+	[*] Fixed [Traceback (most recent call last):, File "Listen.py", line 1147, in <module>, File "Listen.py", line 1100, in main, RuntimeError: input	                 (): 		lost sys.stdin] error.
+
+
+
+
+Client: 23/2/2026 V7.3:
+	[*] Error (Cannot access local variable 'username' where its not associated with a value) Fixed.
+
+
+
+
+Client: 23/2/2026 V7.3:
+	[+] Added ItsYourRansom File.
+
+
+
+
+Client: 24/2/2026 V7.5:
+	[+] Bypass Windows Defender Anti-Virus,
+	 You just need to run it once a time and it will add itself to Exlusive Folders in Windows Defender (WDA-V), it will never get caught by WDA-V,
+	 (Also Windows updates wont get it).
+
+
+
+
+Client: 24/2/2026 V7.7:
+	[!] Removed lock[] to the KEEPALIVE handler (Fixing shifting outputs),
+	[*] Added error handling to Bypassing the Anti-Virus, Added the Bypasser to the logger so it logs everything now,
+	[*] Fixed (Missing cleanup in update) --> Now it cleans up the oldpaths file and replace/delete it,
+	[*] Improved the update logging; now it logs the old version and the new one (Works only if the old ver is 7.7 or greater).
+
+Listen: 24/2/2026 V9.9:
+	[!] Removed lock[] to the KEEPALIVE handler (Fixing the next#;
+	#Fixed shiftimg outputs,
+	#Fixed PONG send in ouputs as a command output,
+	#Fixed KEEPALIVE failure,
+	[+] Added "Broadcast" feature where you can send one commands to all connected clients once,
+	[+] Added command "harvest" to auto-search and send specific file types from UserFolder,
+	[+] Added command "browser" to extract all browser data (includes: Passwords, Usernames/E-Mails, Cookies),
+	[+] Added command "netscan" to scan local network for devices and informations,
+	[+] Added command "screenrec" to record screen as a video and send it,
+	[+] Added command "info" to get all machine info,
+	[+] Added command "killav" to disable Windows Defender Anti-Virus,
+	[+] Added command "creds" to get all windows credentials,
+	[+] Added command "worm" to inject PhantomLink into all PCs on the network,
+	[+] Added command "ddos" to DDOS on specific target
+	[+] Added command "chrome_pass" to decrypt Chrome's encrypted passwords,
+	[+] Added command "dnshijack" to forward any connection to URL into another IP,
+	[+] Added command "sniff" to capture all network traffic for specific duration,
+	[+] Added command "mouse" to control Mouse,
+	[+] Added command "type" to control Keyboard,
+	[+] Added command "spam" to show pop up repeatedly,
+	[+] !!! Added command "killmbr" to DESTROY the PC FOREVER!.
+
+
+
+
+Client: 24/2/2026 V7.8:
+	* Improved Bypassing Security#;
+	#Maked the Folder of PhantomLink hidden,
+	#Disable Windows Defender after runs.
+
+
+
+
+Listen: 25/2/2026 V10.1:
+	[+] Added auto reconnect when network mechanism hicup,
+	[*] Solved duplicateing clients,
+	[*] Fixed stucking when type "start" command,
+	[*] Fixed output shifting problem (Disabling KEEPALIVE while running command ([in_command] flag)).
+
+Client: 25/2/2026 V7.9 (LAST):
+	[*] Fixed crashing when gets command "start",
+	[*] Improved the bypassing and updating mechanism.
+
+
+
+
+Listen: 25/2/2026 V10.2:
+	[*] Fixed and improved "Broadcast" feature where you can send one commands to all connected clients once.
+
+
+
+
+Listen: 25/2/2026 V10.3 (LAST):
+	[*] Fixed bugs.
+
+
+
+[Listen] V11.3:
+	[@] C2 (BETA): 28/2/2026 V11.3:
+		Now The Listen is C2!. New features, better performance, complete new way!
+		Its now in BETA, soon wil release the Stable Version!
+
+[Client] V9.0:
+	[@] PhantomLink (BETA): 28/2/2026 V9.0:
+		Now Client is PhantomLink!
+		Its now in BETA, soon wil release the Stable Version!
+
+
+
+C2 V11.3 (BETA)  -  28/2/2026:
+	[*] Fixed bugs,
+	[*] General improvments.
+
+
+
+
+PhantomLink V9.0 (S)  -  28/2/2026:
+	[*] Now the Stable Version is here! ,
+	    We introduce the Stable Version (9.0) of PhantomLink. New features, better performance, complete new way!
+
+
+
+
+PhantomLink V9.1 (S)  -  28/2/2026:
+	[*] Fixed (Forever Reconnecting) bug.
+
+PhantomLink V9.2 (S):
+	[+] Added UltimatePersistence (Startup),
+	[*] Improved Startup with Windows Startup.
+
+C2 V11.4 (BETA):
+	[+] Added Connection Health Monitoring.
+
+PhantomLink V9.3 (S):
+	[+] Added Auto-AntiVirus turn off.
+
+
+
+
+C2 V11.5 (S)  -  1/3/2026:
+	(IN PROGRESS)
+	We introduce the Stable Version (11.5) of the C2. New features, better performance, updates everyday, complete new way!
+	[*] Improved logging by 68% with more informations,
+	[+] Added Web Dashboard to access anywhere anytime online!
+	[+] Added command "fakeupdate" to show fake windows update screen,
+	[+] Added command "fakelogin" to show fake login Pop-Up and capture credintals,
+	[+] Added command "rootkit" to hide/Unhide PhantomLink completely from Task Manager,
+	[+] Added command "mine" to cryptomine using the pc,
+	[+] Added command "print" to Hijack the printer.
+
+PhantomLink V9.4 (S):
+	[+] Added Anti-Virus bypassing (BETA).
+
+
+
+
+PhantomLink V9.9 (S)  -  2/3/2026:
+	[*] Fixed critical bugs,
+	[*] Improved Startup with Windows Startup,
+	[*] Improved "UltimatePersistence".
+
+
+
+
+PhantomLink V10.3 (S):
+	[*] Fixed bugs.
+
+
+
+
+PhantomLink V10.6 (S):
+	[*] Fixed "cannot access local variable 'username' where it is not associated with a value" Error.
+	[+] Added (PC Started) logging.
