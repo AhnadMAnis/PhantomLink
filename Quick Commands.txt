@@ -1,0 +1,76 @@
+Now you can use tons of commands with only few words, type "commands" wile you connected to the client and you will get all the shortcuts and
+its discription.
+
+Quick Commands: --->
+
+                [📁 File Operations]
+                  send       : Make the client send files to the host
+                  get        : Download file/s on the client from the host's server
+                  copy       : Copy file
+                  cut        : Move file from one place to another
+                  extract    : Extract a .rar file to a location
+                  archive    : Compress a file/folder into .zip
+		  harvest    : Auto-search and send specific file types in User-file
+
+                [📷 Media]
+                  screenshot : Take Screenshot and send it to the host
+                  camera     : Take a snapshot from the camera and send it to the host
+                  record     : Record audio from the client and send it to the host
+                  play       : Play an audio in the client's speaker
+                  rickroll   : Plat a Rickroll video
+		  screenrec  : Record screen as a video and send it
+
+                [🌐 Network & Internet]
+                  wifi       : Shows the wifi passwords
+                  ip         : Get the client's Public IP
+                  port       : Open a new Port-Forwarding
+                  hosts      : Open hosts file to block / unblock websites
+		  netscan    : Scan local network for devices and informations
+		  worm       : Inject PhantomLink into all PCs on the network
+		  ddos       : DDOS on specific target
+		  dnshijack  : Forward any connection to URL into another IP
+		  sniff      : Capture all network traffic for specific duration
+
+                [🖥️ System Info & Monitoring]
+                  sys        : Shows all system info (Hardware/Software)
+                  task       : Shows all of the running tasks
+                  devices    : Shows the available devices
+                  clipboard  : Show the last copied thing
+		  browser    : Extract all browser data (includes: Passwords, Usernames/E-Mails, Cookies)
+		  info       : Get all machine info
+		  creds      : Get all windows credentials
+		  chrome_pass: Decrypt Chrome's encrypted passwords
+
+                [🧠 System Control]
+                  sleep      : Sleep
+                  logoff     : Log off the current user
+                  lock       : Lockscreen (Client)
+                  shutdown   : Force Shutdown to the client
+                  off        : Same as shutdown
+                  restart    : Force restart to the client
+                  rotate     : Rotate the client's screen
+                  wallpaper  : Change wallpaper of client's computer
+                  block      : Temporarily block mouse and keyboard input
+                  disable task manager : Disable the Task Manager
+                  enable task manager  : Enable the Task Manager
+		  killav     : Disable Windows Defender Anti-Virus
+		  mouse      : Control mouse
+		  type       : Control Keyboard
+		  spam       : Show pop up repeatedly
+		  killmbr    : DESTROY the PC FOREVER!
+
+                [👤 User & Execution]
+                  user       : Create a user (Admin)
+                  inject     : Download and execute a malware/software
+                  alert      : Send a POP-UP custom alert message
+                  kill       : Kill the pc temporary (Until restart)
+
+                [🧹 Utilities]
+                  recycle    : Empty the recycle bin
+                  ffmpeg     : Download and setup ffmpeg
+                  keylogger  : Download and setup KeyLogger
+                  keylog     : Get the KeyLogger's log file
+
+                [❓ Help]
+                  commands   : Shows this help list of quick NON-CMD commands
+                  update     : Update PhantomLink
